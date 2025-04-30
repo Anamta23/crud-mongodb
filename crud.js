@@ -1,0 +1,64 @@
+const express=require('express');
+const app=express();
+const port=3000;
+app.use(express.json())
+
+const database=[{id:1,name:"anamta",age:20},
+    {id:2,name:"aryan",age:21}
+]
+// create(C)
+app.post('/users',(req,res)=>{
+    const newuser={
+        id: database.length+1,
+        name:req.body.name,
+        age:req.body.age
+    }
+    database.push(newuser);
+    res.status(201).json(newuser);
+})
+// Read(R)-->read all
+app.get('/users',(req,res)=>{
+    res.json(database);
+})
+
+//read one
+app.get('/users/:id',(req,res)=>{
+    const userid=parseInt(req.params.id)
+    const user=database.find(u=>u.id==userid);
+    if(user){
+        res.json(user)
+    }
+    else{
+        res.status(404).json({message:"user not found"});
+    }
+})
+
+// Update(U)
+app.put('/users/:id',(req,res)=>{
+    const userid=parseInt(req.params.id);
+    const userIndex=database.findIndex(u=>u.id===userid);
+    if(userIndex!=-1){
+        database[userIndex]={...database[userIndex], ...req.body}
+        res.json(database[userIndex])
+    }
+    else{
+        res.status(404).json({message:"user not found"});
+    }
+})
+
+// delete(D)
+app.delete('/users/:id',(req,res)=>{
+    const userid=parseInt(req.params.id);
+    const userIndex=database.findIndex(u=>u.id===userid);
+    if(userIndex!=-1){
+        const deleteuser=database.splice(userIndex,1)
+        res.json(deleteuser);
+    }
+    else{
+        res.status(404).json({message:"user not found"});
+    }
+})
+
+app.listen(port,()=>{
+    console.log(`app is run at: ${port}`);
+})
